@@ -1,14 +1,14 @@
 import { DailyMigraine } from "./daily-migraine";
 import useLocalStorageState from "use-local-storage-state";
 import { useState } from "react";
-import { UiModal } from "./UiModal";
+import { UiModalRecord } from "./UiModalRecord";
 import { Record } from "./record";
 
 export function IndexDailyMigraine() {
   const [record, setRecord] = useLocalStorageState("records", {
     defaultValue: [],
   });
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenRecord, setIsOpenRecord] = useState(false);
   const [recordData, setRecordData] = useState({
     id: 0,
     data: new Date(),
@@ -16,20 +16,15 @@ export function IndexDailyMigraine() {
     passed: "",
   });
   return (
-    <div className="bg-black w-full h-screen text-white text-center">
+    <>
       <DailyMigraine
-        isOpen={() => setIsOpen(true)}
+        isOpen={() => setIsOpenRecord(true)}
         recordView={record.map((recordItem, index) => {
           return (
             <Record
               key={index}
-              getDay={String(new Date(recordItem.data).getDate()).padStart(
-                2,
-                "0"
-              )}
-              getMonth={String(
-                new Date(recordItem.data).getMonth() + 1
-              ).padStart(2, "0")}
+              getDay={String(new Date(recordItem.data).getDate()).padStart(2,"0")}
+              getMonth={String(new Date(recordItem.data).getMonth() + 1).padStart(2, "0")}
               getYear={new Date(recordItem.data).getFullYear()}
               isRemove={() => {
                 setRecord((lastRecord) =>
@@ -37,11 +32,12 @@ export function IndexDailyMigraine() {
                 );
               }}
               recordItem={recordItem}
+              isClick={()=>console.log(recordItem.id)}
             />
           );
         })}/>
-      <UiModal
-        isOpen={isOpen}
+      <UiModalRecord
+        isOpenRecord={isOpenRecord}
         isSave={() => {
           if (!recordData.cause || !recordData.passed) {
             return;
@@ -50,7 +46,7 @@ export function IndexDailyMigraine() {
             return [
               ...lastRecord,
               {
-                id: lastRecord.length > 0 ? lastRecord[lastRecord.length - 1].id + 1 : 0,
+                id: lastRecord.length + 1 ?? 0,
                 data: recordData.data,
                 cause: recordData.cause,
                 passed: recordData.passed,
@@ -62,7 +58,7 @@ export function IndexDailyMigraine() {
           setRecordData((lastRecordData)=> {
             return {...lastRecordData, data: new Date()}
           });
-          setIsOpen(false);
+          setIsOpenRecord(false);
         }}
         recordDate={(e) =>
           setRecordData((lastRecordData) => {
@@ -80,6 +76,6 @@ export function IndexDailyMigraine() {
           });
         }}
       />
-    </div>
+    </>
   );
 }
